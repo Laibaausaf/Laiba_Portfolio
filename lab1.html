@@ -34,12 +34,13 @@
             I have a strong interest in Artificial Intelligence,
             programming and software development.
         </p>
-        <p>
+        <p id="aboutExtra" hidden>
             I have worked on projects involving Java, Python,
             C++, databases and AI technologies. I also enjoy
             participating in technology events and learning
             through practical experience.
         </p>
+        <button type="button" id="readMoreButton" class="small-action">Read More</button>
         <h3>My Interests</h3>
         <ul>
             <li>Artificial Intelligence</li>
@@ -73,7 +74,13 @@
     </section>
     <section id="projects">
         <h2>My Projects</h2>
-        <article>
+        <div class="project-filters">
+            <button type="button" class="filter-button active" data-filter="all">All</button>
+            <button type="button" class="filter-button" data-filter="ai">AI</button>
+            <button type="button" class="filter-button" data-filter="software">Software</button>
+            <button type="button" class="filter-button" data-filter="web">Web</button>
+        </div>
+        <article data-category="ai">
             <h3>AI Study Companion</h3>
             <p>
                 An AI-based study assistant designed to help
@@ -86,7 +93,7 @@
                 Sentence Transformers, Qdrant and OpenRouter API
             </p>
         </article>
-        <article>
+        <article data-category="software">
             <h3>AgriConnect Pakistan</h3>
             <p>
                 A smart agricultural supply and cold chain
@@ -102,7 +109,7 @@
                 Java, Java Swing and SQL Server
             </p>
         </article>
-        <article>
+        <article data-category="software">
             <h3>Tourist Travel Route Optimizer</h3>
             <p>
                 A route optimization project designed to find
@@ -119,7 +126,7 @@
                 C++ and Graph Algorithms
             </p>
         </article>
-        <article>
+        <article data-category="web">
             <h3>Personal Portfolio</h3>
             <p>
                 A simple portfolio website created to present
@@ -130,7 +137,7 @@
     </section>
     <section id="skills">
         <h2>My Skills</h2>
-        <table border="1">
+        <table id="skillsTable" border="1">
             <tr>
                 <th>Category</th>
                 <th>Skills</th>
@@ -210,6 +217,13 @@
                    placeholder="Enter your email"
                    required>
             <br><br>
+            <label for="birth-year">Birth Year</label>
+            <br>
+            <input type="text" id="birth-year" name="birth-year"
+                   inputmode="numeric" placeholder="e.g. 2002">
+            <p id="ageMessage" class="form-hint" aria-live="polite"></p>
+
+            <br>
             <fieldset>
                 <legend>Preferred Contact Method</legend>
                 <label>
@@ -245,6 +259,14 @@
                       required></textarea>
 
             <br><br>
+            <label for="special-notes">Additional Notes (100 characters max)</label>
+            <br>
+            <textarea id="special-notes" name="special-notes"
+                      rows="3" maxlength="100"
+                      placeholder="Add any extra details..."></textarea>
+            <p id="characterCount" class="form-hint">100 characters remaining</p>
+
+            <br>
             <button type="submit">Send Message</button>
         <p id="formSuccess" class="form-success" role="status" aria-live="polite"></p>
         </form>

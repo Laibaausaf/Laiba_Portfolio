@@ -910,3 +910,41 @@ footer a {
     right: 20px;
     z-index: 2;
 }
+
+/* Small styles for the portfolio assignment interactions. */
+#aboutExtra[hidden] {
+    display: none;
+}
+
+.small-action,
+.project-filters button {
+    padding: 9px 14px;
+    margin: 8px 6px 8px 0;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.project-filters {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.project-filters button.active {
+    background: linear-gradient(110deg, var(--purple), var(--cyan));
+    color: #101326;
+}
+
+#skillsTable tr.highlight-row {
+    background: color-mix(in srgb, var(--cyan) 22%, var(--card));
+}
+
+.form-hint {
+    margin: 5px 0 10px;
+    color: var(--muted);
+    font-size: 12px;
+}

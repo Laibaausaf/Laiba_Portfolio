@@ -1,212 +1,238 @@
-
-// Portfolio interactivity using DOM selection and event listeners.
+// Portfolio interactivity.
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Select DOM elements
     const body = document.body;
     const nav = document.querySelector('nav');
     const navList = nav.querySelector('ul');
 
-    // Create Theme Toggle Button
-    const theme = document.createElement('button');
+    // 3. Light / dark theme switcher.
+    const themeButton = document.createElement('button');
+    themeButton.className = 'theme-toggle';
+    themeButton.type = 'button';
+    themeButton.id = 'themeToggle';
+    themeButton.textContent = '☼';
+    themeButton.title = 'Toggle Light/Dark Mode';
+    themeButton.setAttribute('aria-label', 'Toggle Light/Dark Mode');
+    nav.appendChild(themeButton);
 
-    theme.className = 'theme-toggle';
-    theme.type = 'button';
-    theme.id = 'themeToggle';
-    theme.textContent = '☼';
-    theme.title = 'Switch light/dark theme';
-    theme.setAttribute('aria-label', 'Switch theme');
-
-    nav.appendChild(theme);
-
-    // Create Mobile Menu Toggle Button
-    const menu = document.createElement('button');
-
-    menu.className = 'menu-toggle';
-    menu.type = 'button';
-    menu.id = 'menuToggle';
-    menu.textContent = '☰';
-    menu.setAttribute('aria-label', 'Open menu');
-    menu.setAttribute('aria-expanded', 'false');
-
-    nav.insertBefore(menu, navList);
-
-    // Theme Toggle Functionality
-    theme.addEventListener('click', function () {
-
+    themeButton.addEventListener('click', function () {
         body.classList.toggle('light-theme');
 
-        const light = body.classList.contains('light-theme');
-
-        theme.textContent = light ? '☾' : '☼';
-
-        theme.setAttribute(
-            'aria-label',
-            light ? 'Switch to dark theme' : 'Switch to light theme'
-        );
+        const isLight = body.classList.contains('light-theme');
+        themeButton.textContent = isLight ? '☾' : '☼';
     });
 
-    // Mobile Menu Toggle Functionality
-    menu.addEventListener('click', function () {
+    // Mobile navigation menu.
+    const menuButton = document.createElement('button');
+    menuButton.className = 'menu-toggle';
+    menuButton.type = 'button';
+    menuButton.textContent = '☰';
+    menuButton.setAttribute('aria-label', 'Open menu');
+    menuButton.setAttribute('aria-expanded', 'false');
+    nav.insertBefore(menuButton, navList);
 
-        const open = navList.classList.toggle('open');
-
-        menu.textContent = open ? '×' : '☰';
-
-        menu.setAttribute('aria-expanded', open);
+    menuButton.addEventListener('click', function () {
+        const isOpen = navList.classList.toggle('open');
+        menuButton.textContent = isOpen ? '×' : '☰';
+        menuButton.setAttribute('aria-expanded', isOpen);
     });
 
-    // Close Mobile Menu When a Navigation Link Is Clicked
     nav.querySelectorAll('a').forEach(function (link) {
-
         link.addEventListener('click', function () {
-
             navList.classList.remove('open');
-
-            menu.textContent = '☰';
-
-            menu.setAttribute('aria-expanded', 'false');
+            menuButton.textContent = '☰';
+            menuButton.setAttribute('aria-expanded', 'false');
         });
     });
 
-    // Scroll Progress and Back-to-Top Elements
+    // Scroll progress and back-to-top button.
     const progress = document.getElementById('scrollProgress');
     const topButton = document.getElementById('backToTop');
 
-    // Update Scroll Progress and Active Navigation Link
     function updateScroll() {
+        const maxScroll =
+            document.documentElement.scrollHeight - window.innerHeight;
 
-        const max = document.documentElement.scrollHeight - window.innerHeight;
+        if (progress) {
+            progress.style.width =
+                (maxScroll > 0 ? window.scrollY / maxScroll * 100 : 0) + '%';
+        }
 
-        progress.style.width =
-            (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+        if (topButton) {
+            topButton.classList.toggle('visible', window.scrollY > 350);
+        }
 
-        // Show or Hide Back-to-Top Button
-        topButton.classList.toggle('visible', window.scrollY > 350);
-
-        // Detect Current Section
-        let current = 'home';
+        let currentSection = 'home';
 
         document.querySelectorAll('main section[id]').forEach(function (section) {
-
             if (window.scrollY >= section.offsetTop - 150) {
-                current = section.id;
+                currentSection = section.id;
             }
         });
 
-        // Update Active Navigation Link
-        nav.querySelectorAll('a[href^="#"]').forEach(function (a) {
-
-            a.classList.toggle(
+        nav.querySelectorAll('a[href^="#"]').forEach(function (link) {
+            link.classList.toggle(
                 'active',
-                a.getAttribute('href') === '#' + current
+                link.getAttribute('href') === '#' + currentSection
             );
         });
     }
 
-    // Scroll Event Listener
     window.addEventListener('scroll', updateScroll);
-
     updateScroll();
 
-    // Back-to-Top Button Functionality
-    topButton.addEventListener('click', function () {
-
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+    if (topButton) {
+        topButton.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-    });
+    }
 
-    // Scroll Reveal Animation
-    const items = document.querySelectorAll(
-        'main section, #projects article'
-    );
+    // Reveal sections as they appear on screen.
+    const revealItems = document.querySelectorAll('main section, #projects article');
 
     if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(function (entries, obs) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
 
-        const observer = new IntersectionObserver(
-            function (entries, obs) {
-
-                entries.forEach(function (entry) {
-
-                    if (entry.isIntersecting) {
-
-                        entry.target.classList.add('visible');
-
-                        obs.unobserve(entry.target);
-                    }
-                });
-            },
-            {
-                threshold: 0.1
-            }
-        );
-
-        items.forEach(function (item) {
-
+        revealItems.forEach(function (item) {
             item.classList.add('reveal');
-
             observer.observe(item);
         });
-
     } else {
-
-        // Fallback for browsers without IntersectionObserver
-        items.forEach(function (item) {
-
+        revealItems.forEach(function (item) {
             item.classList.add('visible');
         });
     }
 
-    // Project Card Selection
-    const cards = document.querySelectorAll('#projects article');
-
-    cards.forEach(function (card) {
-
-        card.addEventListener('click', function () {
-
-            cards.forEach(function (c) {
-
-                c.classList.remove('selected');
+    // 2. Highlight rows in the Skills table.
+    document.querySelectorAll('#skillsTable tbody tr, #skillsTable tr:not(:first-child)')
+        .forEach(function (row) {
+            row.addEventListener('mouseover', function () {
+                row.classList.add('highlight-row');
             });
 
+            row.addEventListener('mouseout', function () {
+                row.classList.remove('highlight-row');
+            });
+        });
+
+    // Keep the existing project-card selection interaction.
+    const projectCards = document.querySelectorAll('#projects article');
+
+    projectCards.forEach(function (card) {
+        card.addEventListener('click', function () {
+            projectCards.forEach(function (otherCard) {
+                otherCard.classList.remove('selected');
+            });
             card.classList.add('selected');
         });
     });
 
-    // Contact Form Functionality
+    // 6. Read More / Read Less in the About section.
+    const readMoreButton = document.getElementById('readMoreButton');
+    const aboutExtra = document.getElementById('aboutExtra');
+
+    if (readMoreButton && aboutExtra) {
+        readMoreButton.addEventListener('click', function () {
+            aboutExtra.hidden = !aboutExtra.hidden;
+            readMoreButton.textContent =
+                aboutExtra.hidden ? 'Read More' : 'Read Less';
+        });
+    }
+
+    // 7. Filter projects by category.
+    const filterButtons = document.querySelectorAll('.filter-button');
+
+    filterButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            const category = button.dataset.filter;
+
+            projectCards.forEach(function (card) {
+                const showCard =
+                    category === 'all' || card.dataset.category === category;
+
+                card.style.display = showCard ? '' : 'none';
+            });
+
+            filterButtons.forEach(function (filter) {
+                filter.classList.remove('active');
+            });
+            button.classList.add('active');
+        });
+    });
+
+    // 1. Contact form validation and personalized confirmation.
     const form = document.getElementById('contactForm');
-    const success = document.getElementById('formSuccess');
+    const formSuccess = document.getElementById('formSuccess');
 
     if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-        form.addEventListener('submit', function (event) {
-
-            event.preventDefault();
-
-            // Get and validate form values
             const name = document.getElementById('name').value.trim();
             const email = document.getElementById('email').value.trim();
             const message = document.getElementById('message').value.trim();
 
-            // Check required fields
-            if (!name || !email || !message) {
-
-                success.textContent =
+            if (name === '' || email === '' || message === '') {
+                formSuccess.textContent =
                     'Please complete your name, email, and message.';
-
                 return;
             }
 
-            // Display Success Message
-            success.textContent =
-                'Thanks, ' + name +
-                '! This demo confirms your message locally but does not send emails yet.';
+            formSuccess.textContent =
+                'Thank you for visiting, ' + name +
+                '! We will contact you at ' + email + '.';
 
-            // Reset Contact Form
             form.reset();
+            updateCharacterCount();
         });
     }
 
+    // 5. Convert the birth year to a number and show age eligibility.
+    const birthYear = document.getElementById('birth-year');
+    const ageMessage = document.getElementById('ageMessage');
+
+    if (birthYear) {
+        birthYear.addEventListener('input', function () {
+            const year = parseInt(birthYear.value, 10);
+
+            if (birthYear.value.trim() === '' || isNaN(year)) {
+                ageMessage.textContent = '';
+            } else if (year < 1900 || year > new Date().getFullYear()) {
+                ageMessage.textContent = 'Please enter a valid birth year.';
+            } else {
+                const age = new Date().getFullYear() - year;
+
+                if (age <= 25) {
+                    ageMessage.textContent = 'You qualify for the student-age category.';
+                } else if (age >= 60) {
+                    ageMessage.textContent = 'You qualify for the senior-age category.';
+                } else {
+                    ageMessage.textContent = 'No age-based category applies.';
+                }
+            }
+        });
+    }
+
+    // 9. Live character counter for the additional notes box.
+    const specialNotes = document.getElementById('special-notes');
+    const characterCount = document.getElementById('characterCount');
+
+    function updateCharacterCount() {
+        if (specialNotes && characterCount) {
+            const remaining = 100 - specialNotes.value.length;
+            characterCount.textContent = remaining + ' characters remaining';
+        }
+    }
+
+    if (specialNotes) {
+        specialNotes.addEventListener('input', updateCharacterCount);
+        updateCharacterCount();
+    }
 });
